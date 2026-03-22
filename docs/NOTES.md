@@ -54,7 +54,7 @@ garbage collection of orphaned chunks, and chunk migration between `chunkservers
 to give it instructions and collect its state.
 - Client code linked into each application implements the filesystem API
 
-![GFS Diagram](/images/GFS%20Diagram.png)
+![GFS Diagram](/docs/images/GFS%20Diagram.png)
 
 - A single master simplifies the design, a global knowledge makes it easy for chunk
 placements, replication, and any other stuff. However its usage must be minimized
