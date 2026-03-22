@@ -54,4 +54,4 @@ garbage collection of orphaned chunks, and chunk migration between `chunkservers
 to give it instructions and collect its state.
 - Client code linked into each application implements the filesystem API
 
-![GFS Diagram](/docs/images/GFS Diagram.png)
+![GFS Diagram](/docs/images/GFS%20Diagram.png)
