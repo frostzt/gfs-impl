@@ -82,3 +82,28 @@ needed.
 Its most likely that the data that a consumer might want is the next node or
 contiguous, therefore the master can return metadata for chunks next to the
 current chunk further reducing the need of asking the master.
+
+## Key Design Parameters, Assumptions and whatever else
+
+### Single Master
+
+Cleared this above as to why this is needed.
+
+### Chunk Size
+
+- Chosen size is 64 MB
+- Each chunk replica is stored as a plain linux file
+- Given the chunk size is large (64 MB), Lazy Space Allocation avoid wasting space.
+- The advantages of choosing large chunk size are:
+  - Large chunk size means less reads as requesting it once gets us most data
+  - Even for small reads its easy as the client can cache and get data which might
+  already be present.
+  - With larger chunks since the client is likely to perform more ops on the same
+  chunk we can reduce network overhead by keeping a persistant TCP connection.
+  - This also results in a smaller metadata size and this metadata now can be kept
+  in memory which provides further benefits.
+- There are disadvantages too:
+  - Hotspots can become common as for small files chunks can be just one
+  - FWIW one way to solve this is by increasing the replication factor
+
+## Metadata
