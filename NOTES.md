@@ -55,3 +55,30 @@ to give it instructions and collect its state.
 - Client code linked into each application implements the filesystem API
 
 ![GFS Diagram](/docs/images/GFS%20Diagram.png)
+
+- A single master simplifies the design, a global knowledge makes it easy for chunk
+placements, replication, and any other stuff. However its usage must be minimized
+as it can become a bottleneck.
+- Clients will NOT write data through master, they'll ask master for info which `chunkservers`
+to contact to and cache that info and write into that `chunkserver`
+
+## Flow
+
+- Given that every file is divided into equal size chunks (64 MB = ~67,108,864 bytes)
+and we want data from let's say 100,000,000 bytes as offset
+- The client can calculate `chunkindex` as:
+
+```plaintext
+chunkindex = 100,000,000 / 67,108,864
+```
+
+The above gives us `1` as a remainder which tells us that the data is in chunk 1
+
+- The client calls the master with the `chunkindex` and the `filename`
+- The master replies with `chunkhandle` and locations of replicas
+- The client caches this key and further client-master interactions are no longer
+needed.
+
+Its most likely that the data that a consumer might want is the next node or
+contiguous, therefore the master can return metadata for chunks next to the
+current chunk further reducing the need of asking the master.
