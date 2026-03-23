@@ -113,3 +113,41 @@ Uses three major types of metadata that we'll store:
 - The file and chunk namespaces
 - Mapping from files to chunks
 - Locations of each chunks replicas
+
+The file, chunk namespaces and the mapping from file to chunks is also kept persistent
+by logging mutations to an `operator log` stored on the master and replicated
+to remote.
+
+- The master never stores all the chunk locations rather it asks the `chunkservers`
+for the locations and details on master start and when a new `chunkserver` joins
+the cluster.
+
+### In-Memory Data Structures
+
+- Given metadata is stored in memory its easy for the master to scan it periodically
+- The periodic scan is used to implement:
+  - Chunk Garbage Collection
+  - Re-replication in case of chunkserver failure
+  - Chunk migration to balance load and disk space
+
+### Chunk Locations
+
+- The master doesn't keep everything in itself rather it asks the
+Chunkservers on startup
+- Given the above is rather more efficient we will keep asking the `chunkservers`
+rather than storing metadata fully in master as `chunkservers` going down and
+rejoining the cluster
+
+### Operation Log
+
+- Historical records of all critical metadata changes
+- Master will batch several log records thereby reducing impact of saving,
+replication, and flush
+- Master recovers its state by replaying the operation log
+- The idea is that the log should be kept small so the master will keep
+taking checkpoints and then if a crash happens it will first restore from
+the local disk and then replay the rest of the log.
+- The checkpoint is in a compact B-tree like form that can be directly mapped
+into memory and used for namespace lookup without extra parsing.
+- The master switches to a new log file and creates the new checkpoint in
+a separate thread. The new checkpoint includes all mutations before the switch.
