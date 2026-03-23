@@ -107,3 +107,9 @@ Cleared this above as to why this is needed.
   - FWIW one way to solve this is by increasing the replication factor
 
 ## Metadata
+
+Uses three major types of metadata that we'll store:
+
+- The file and chunk namespaces
+- Mapping from files to chunks
+- Locations of each chunks replicas
